@@ -2,7 +2,7 @@
   "name": "vsc-orqestra",
   "displayName": "Orqestra",
   "description": "Receive execution bundles and submit evidence from your IDE",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "raftio",
   "license": "MIT",
   "engines": {
@@ -11,7 +11,9 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView:orqestra.bundleTree"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
@@ -81,6 +83,11 @@
         }
       ],
       "view/item/context": [
+        {
+          "command": "orqestra.executeBundle",
+          "when": "view == orqestra.bundleTree && viewItem == bundle",
+          "group": "inline"
+        },
         {
           "command": "orqestra.executeTask",
           "when": "view == orqestra.bundleTree && viewItem == task",

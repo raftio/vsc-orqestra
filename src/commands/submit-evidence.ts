@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import * as api from "../api-client";
-import type { BundleTreeProvider } from "../views/bundle-tree";
-import type { EvidencePayload } from "../types";
+import type { BundleTreeProvider, TreeNode } from "../views/bundle-tree";
+import type { EvidencePayload, ExecutionBundle } from "../types";
 
 async function getGitInfo(): Promise<{
   repo: string;
@@ -37,15 +37,42 @@ async function getGitInfo(): Promise<{
   };
 }
 
+async function pickBundle(
+  tree: BundleTreeProvider,
+  node?: TreeNode,
+): Promise<ExecutionBundle | null> {
+  if (node?.bundleId) {
+    return tree.getBundle(node.bundleId);
+  }
+
+  const entries = tree.getAllEntries();
+  if (entries.length === 0) {
+    vscode.window.showWarningMessage(
+      "No bundles loaded. Fetch a bundle first to submit evidence.",
+    );
+    return null;
+  }
+
+  if (entries.length === 1) {
+    return entries[0]!.bundle;
+  }
+
+  const picked = await vscode.window.showQuickPick(
+    entries.map((e) => ({
+      label: e.bundle.ticket_ref,
+      description: `v${e.bundle.version} — ${e.bundle.tasks.length} task(s)`,
+      bundle: e.bundle,
+    })),
+    { placeHolder: "Select a bundle to submit evidence for" },
+  );
+
+  return picked?.bundle ?? null;
+}
+
 export function createSubmitEvidenceCommand(tree: BundleTreeProvider) {
-  return async () => {
-    const bundle = tree.getBundle();
-    if (!bundle) {
-      vscode.window.showWarningMessage(
-        "No bundle loaded. Fetch a bundle first to submit evidence.",
-      );
-      return;
-    }
+  return async (node?: TreeNode) => {
+    const bundle = await pickBundle(tree, node);
+    if (!bundle) return;
 
     const passStr = await vscode.window.showInputBox({
       prompt: "Number of passing tests",
