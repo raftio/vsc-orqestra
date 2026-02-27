@@ -13,9 +13,9 @@ export class StatusBarController {
     this.item.show();
   }
 
-  setTicket(ticketId: string, bundleId: string): void {
-    this.item.text = `$(symbol-structure) ${ticketId}`;
-    this.item.tooltip = `Orqestra bundle: ${bundleId}\nClick to fetch another bundle`;
+  setBundleCount(count: number): void {
+    this.item.text = `$(symbol-structure) Orqestra (${count})`;
+    this.item.tooltip = `${count} bundle(s) loaded\nClick to add a new bundle`;
   }
 
   reset(): void {

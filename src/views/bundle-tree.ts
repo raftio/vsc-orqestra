@@ -1,21 +1,22 @@
 import * as vscode from "vscode";
 import type { ExecutionBundle, SynthesizedContext } from "../types";
 
-type NodeKind =
-  | "root"
-  | "section"
-  | "task"
-  | "ac"
-  | "excerpt"
-  | "info";
+type NodeKind = "bundle" | "section" | "task" | "ac" | "excerpt" | "info";
 
-interface TreeNode {
+export interface TreeNode {
   kind: NodeKind;
   label: string;
   description?: string;
   tooltip?: string;
   children?: TreeNode[];
   collapsible?: boolean;
+  bundleId?: string;
+  taskId?: string;
+}
+
+export interface BundleEntry {
+  bundle: ExecutionBundle;
+  context: SynthesizedContext | null;
 }
 
 export class BundleTreeProvider
@@ -26,85 +27,110 @@ export class BundleTreeProvider
   >();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
-  private bundle: ExecutionBundle | null = null;
-  private context: SynthesizedContext | null = null;
+  private entries: BundleEntry[] = [];
   private roots: TreeNode[] = [];
 
   refresh(): void {
     this._onDidChangeTreeData.fire();
   }
 
-  setData(
-    bundle: ExecutionBundle | null,
-    ctx: SynthesizedContext | null,
-  ): void {
-    this.bundle = bundle;
-    this.context = ctx;
+  setBundles(entries: BundleEntry[]): void {
+    this.entries = entries;
+    this.roots = this.buildRoots();
+    this.refresh();
+  }
+
+  addBundle(bundle: ExecutionBundle, ctx: SynthesizedContext | null): void {
+    const idx = this.entries.findIndex((e) => e.bundle.id === bundle.id);
+    if (idx >= 0) {
+      this.entries[idx] = { bundle, context: ctx };
+    } else {
+      this.entries.unshift({ bundle, context: ctx });
+    }
     this.roots = this.buildRoots();
     this.refresh();
   }
 
   clear(): void {
-    this.bundle = null;
-    this.context = null;
+    this.entries = [];
     this.roots = [];
     this.refresh();
   }
 
-  getBundle(): ExecutionBundle | null {
-    return this.bundle;
+  getBundle(bundleId: string): ExecutionBundle | null {
+    return this.entries.find((e) => e.bundle.id === bundleId)?.bundle ?? null;
+  }
+
+  getBundleContext(bundleId: string): SynthesizedContext | null {
+    return this.entries.find((e) => e.bundle.id === bundleId)?.context ?? null;
+  }
+
+  getAllEntries(): BundleEntry[] {
+    return this.entries;
   }
 
   getTreeItem(element: TreeNode): vscode.TreeItem {
-    const item = new vscode.TreeItem(
-      element.label,
-      element.children?.length
-        ? element.collapsible === false
-          ? vscode.TreeItemCollapsibleState.None
-          : vscode.TreeItemCollapsibleState.Expanded
-        : vscode.TreeItemCollapsibleState.None,
-    );
+    const state = element.children?.length
+      ? element.kind === "bundle"
+        ? vscode.TreeItemCollapsibleState.Collapsed
+        : vscode.TreeItemCollapsibleState.Expanded
+      : vscode.TreeItemCollapsibleState.None;
+
+    const item = new vscode.TreeItem(element.label, state);
+
     if (element.description) {
       item.description = element.description;
     }
     if (element.tooltip) {
       item.tooltip = new vscode.MarkdownString(element.tooltip);
     }
+
     item.iconPath = this.iconFor(element.kind);
+
+    if (element.kind === "bundle") {
+      item.contextValue = "bundle";
+    } else if (element.kind === "task" && element.taskId) {
+      item.contextValue = "task";
+    }
+
     return item;
   }
 
   getChildren(element?: TreeNode): TreeNode[] {
-    if (!element) {
-      return this.roots;
-    }
+    if (!element) return this.roots;
     return element.children ?? [];
   }
 
   private buildRoots(): TreeNode[] {
-    const roots: TreeNode[] = [];
-
-    if (this.context) {
-      roots.push({
-        kind: "info",
-        label: this.context.ticket_title,
-        description: this.bundle?.ticket_ref,
-        tooltip: this.context.ticket_description || undefined,
-      });
+    if (this.entries.length === 0) {
+      return [
+        {
+          kind: "info",
+          label: "No bundles loaded",
+          description: "Use 'Orqestra: Fetch Bundle' to get started",
+        },
+      ];
     }
 
-    if (this.bundle?.tasks.length) {
+    return this.entries.map((entry) => this.buildBundleNode(entry));
+  }
+
+  private buildBundleNode({ bundle, context }: BundleEntry): TreeNode {
+    const children: TreeNode[] = [];
+
+    if (bundle.tasks.length) {
       const depMap = new Map<string, string[]>();
-      for (const d of this.bundle.dependencies ?? []) {
+      for (const d of bundle.dependencies ?? []) {
         const list = depMap.get(d.taskId) ?? [];
         list.push(d.dependsOn);
         depMap.set(d.taskId, list);
       }
 
-      roots.push({
+      children.push({
         kind: "section",
-        label: `Tasks (${this.bundle.tasks.length})`,
-        children: this.bundle.tasks.map((t) => {
+        label: `Tasks (${bundle.tasks.length})`,
+        bundleId: bundle.id,
+        children: bundle.tasks.map((t) => {
           const deps = depMap.get(t.id);
           const desc = deps ? `depends on: ${deps.join(", ")}` : undefined;
           return {
@@ -112,51 +138,60 @@ export class BundleTreeProvider
             label: t.title,
             description: desc,
             tooltip: t.description || undefined,
+            bundleId: bundle.id,
+            taskId: t.id,
           };
         }),
       });
     }
 
-    const acs = this.context?.acceptance_criteria;
+    const acs = context?.acceptance_criteria;
     if (acs?.length) {
-      roots.push({
+      children.push({
         kind: "section",
         label: `Acceptance Criteria (${acs.length})`,
+        bundleId: bundle.id,
         children: acs.map((ac) => ({
           kind: "ac" as NodeKind,
           label: ac.id,
           description: ac.description,
           tooltip: ac.description,
+          bundleId: bundle.id,
         })),
       });
     }
 
-    const excerpts = this.context?.excerpts ?? this.bundle?.context?.excerpts;
+    const excerpts = context?.excerpts ?? bundle.context?.excerpts;
     if (excerpts?.length) {
-      roots.push({
+      children.push({
         kind: "section",
         label: `Context (${excerpts.length})`,
+        bundleId: bundle.id,
         children: excerpts.map((e) => ({
           kind: "excerpt" as NodeKind,
           label: e.length > 80 ? e.slice(0, 80) + "..." : e,
           tooltip: e,
+          bundleId: bundle.id,
         })),
       });
     }
 
-    if (roots.length === 0) {
-      roots.push({
-        kind: "info",
-        label: "No bundle loaded",
-        description: "Use 'Orqestra: Fetch Bundle' to get started",
-      });
-    }
+    const ticketLabel = context?.ticket_title ?? bundle.ticket_ref;
 
-    return roots;
+    return {
+      kind: "bundle",
+      label: ticketLabel,
+      description: `v${bundle.version} · ${bundle.tasks.length} task(s)`,
+      tooltip: context?.ticket_description || `Bundle ${bundle.id}`,
+      bundleId: bundle.id,
+      children,
+    };
   }
 
   private iconFor(kind: NodeKind): vscode.ThemeIcon {
     switch (kind) {
+      case "bundle":
+        return new vscode.ThemeIcon("package");
       case "section":
         return new vscode.ThemeIcon("symbol-folder");
       case "task":
