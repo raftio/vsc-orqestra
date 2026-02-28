@@ -1,6 +1,6 @@
 {
-  "name": "vsc-orqestra",
-  "displayName": "Orqestra",
+  "name": "vsc-orca",
+  "displayName": "Orca",
   "description": "Receive execution bundles and submit evidence from your IDE",
   "version": "0.1.3",
   "publisher": "raftio",
@@ -12,101 +12,101 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:orqestra.bundleTree"
+    "onView:orca.bundleTree"
   ],
   "main": "./dist/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "orqestra",
-          "title": "Orqestra",
+          "id": "orca",
+          "title": "Orca",
           "icon": "$(symbol-structure)"
         }
       ]
     },
     "views": {
-      "orqestra": [
+      "orca": [
         {
-          "id": "orqestra.bundleTree",
+          "id": "orca.bundleTree",
           "name": "Execution Bundle"
         }
       ]
     },
     "commands": [
       {
-        "command": "orqestra.fetchBundle",
-        "title": "Orqestra: Fetch Bundle",
+        "command": "orca.fetchBundle",
+        "title": "Orca: Fetch Bundle",
         "icon": "$(cloud-download)"
       },
       {
-        "command": "orqestra.submitEvidence",
-        "title": "Orqestra: Submit Evidence",
+        "command": "orca.submitEvidence",
+        "title": "Orca: Submit Evidence",
         "icon": "$(beaker)"
       },
       {
-        "command": "orqestra.disconnect",
-        "title": "Orqestra: Disconnect"
+        "command": "orca.disconnect",
+        "title": "Orca: Disconnect"
       },
       {
-        "command": "orqestra.refreshBundle",
+        "command": "orca.refreshBundle",
         "title": "Refresh",
         "icon": "$(refresh)"
       },
       {
-        "command": "orqestra.executeTask",
-        "title": "Orqestra: Execute Task",
+        "command": "orca.executeTask",
+        "title": "Orca: Execute Task",
         "icon": "$(play)"
       },
       {
-        "command": "orqestra.executeBundle",
-        "title": "Orqestra: Execute Bundle",
+        "command": "orca.executeBundle",
+        "title": "Orca: Execute Bundle",
         "icon": "$(run-all)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "orqestra.executeBundle",
-          "when": "view == orqestra.bundleTree",
+          "command": "orca.executeBundle",
+          "when": "view == orca.bundleTree",
           "group": "navigation"
         },
         {
-          "command": "orqestra.fetchBundle",
-          "when": "view == orqestra.bundleTree",
+          "command": "orca.fetchBundle",
+          "when": "view == orca.bundleTree",
           "group": "navigation"
         },
         {
-          "command": "orqestra.refreshBundle",
-          "when": "view == orqestra.bundleTree",
+          "command": "orca.refreshBundle",
+          "when": "view == orca.bundleTree",
           "group": "navigation"
         }
       ],
       "view/item/context": [
         {
-          "command": "orqestra.executeBundle",
-          "when": "view == orqestra.bundleTree && viewItem == bundle",
+          "command": "orca.executeBundle",
+          "when": "view == orca.bundleTree && viewItem == bundle",
           "group": "inline"
         },
         {
-          "command": "orqestra.executeTask",
-          "when": "view == orqestra.bundleTree && viewItem == task",
+          "command": "orca.executeTask",
+          "when": "view == orca.bundleTree && viewItem == task",
           "group": "inline"
         }
       ]
     },
     "configuration": {
-      "title": "Orqestra",
+      "title": "Orca",
       "properties": {
-        "orqestra.apiUrl": {
+        "orca.apiUrl": {
           "type": "string",
           "default": "http://localhost:3001",
-          "description": "Base URL of the Orqestra API"
+          "description": "Base URL of the Orca API"
         },
-        "orqestra.apiToken": {
+        "orca.apiToken": {
           "type": "string",
           "default": "",
-          "description": "Bearer token for authenticating with the Orqestra API"
+          "description": "Bearer token for authenticating with the Orca API"
         }
       }
     }

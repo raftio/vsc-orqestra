@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
   const statusBar = new StatusBarController();
 
   context.subscriptions.push(
-    vscode.window.registerTreeDataProvider("orqestra.bundleTree", tree),
+    vscode.window.registerTreeDataProvider("orca.bundleTree", tree),
     statusBar,
   );
 
@@ -41,26 +41,26 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "orqestra.fetchBundle",
+      "orca.fetchBundle",
       createBuildBundleCommand(tree, reload),
     ),
-    vscode.commands.registerCommand("orqestra.refreshBundle", reload),
+    vscode.commands.registerCommand("orca.refreshBundle", reload),
     vscode.commands.registerCommand(
-      "orqestra.submitEvidence",
+      "orca.submitEvidence",
       createSubmitEvidenceCommand(tree),
     ),
     vscode.commands.registerCommand(
-      "orqestra.executeTask",
+      "orca.executeTask",
       createExecuteTaskCommand(tree),
     ),
     vscode.commands.registerCommand(
-      "orqestra.executeBundle",
+      "orca.executeBundle",
       createExecuteBundleCommand(tree),
     ),
-    vscode.commands.registerCommand("orqestra.disconnect", () => {
+    vscode.commands.registerCommand("orca.disconnect", () => {
       tree.clear();
       statusBar.reset();
-      vscode.window.showInformationMessage("Orqestra: disconnected.");
+      vscode.window.showInformationMessage("Orca: disconnected.");
     }),
   );
 

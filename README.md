@@ -1,20 +1,20 @@
-# Orqestra — VSCode Extension
+# Orca — VSCode Extension
 
 Receive execution bundles and submit evidence from your IDE.
 
 ## Features
 
 - **Fetch Bundle** — enter a Jira ticket ID, get a structured execution bundle (tasks, acceptance criteria, context) in the sidebar
-- **Submit Evidence** — report local test results back to Orqestra, linked to the current bundle
+- **Submit Evidence** — report local test results back to Orca, linked to the current bundle
 - **Status Bar** — shows the active ticket at a glance
 
 ## Setup
 
 1. Install the extension (VSIX or marketplace)
 2. Open **Settings** and configure:
-   - `orqestra.apiUrl` — your Orqestra API URL (default: `http://localhost:3001`)
-   - `orqestra.apiToken` — your auth token (optional for local dev)
-3. Open the command palette (`Cmd+Shift+P`) and run **Orqestra: Fetch Bundle**
+   - `orca.apiUrl` — your Orca API URL (default: `http://localhost:3001`)
+   - `orca.apiToken` — your auth token (optional for local dev)
+3. Open the command palette (`Cmd+Shift+P`) and run **Orca: Fetch Bundle**
 
 ## Development
 

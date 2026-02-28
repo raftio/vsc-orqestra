@@ -8,18 +8,18 @@ export class StatusBarController {
       vscode.StatusBarAlignment.Left,
       50,
     );
-    this.item.command = "orqestra.fetchBundle";
+    this.item.command = "orca.fetchBundle";
     this.reset();
     this.item.show();
   }
 
   setBundleCount(count: number): void {
-    this.item.text = `$(symbol-structure) Orqestra (${count})`;
+    this.item.text = `$(symbol-structure) Orca (${count})`;
     this.item.tooltip = `${count} bundle(s) loaded\nClick to add a new bundle`;
   }
 
   reset(): void {
-    this.item.text = "$(symbol-structure) Orqestra";
+    this.item.text = "$(symbol-structure) Orca";
     this.item.tooltip = "Click to fetch an execution bundle";
   }
 

@@ -6,7 +6,7 @@ import type {
 } from "./types";
 
 function getConfig() {
-  const cfg = vscode.workspace.getConfiguration("orqestra");
+  const cfg = vscode.workspace.getConfiguration("orca");
   return {
     apiUrl: (cfg.get<string>("apiUrl") || "http://localhost:3001").replace(
       /\/+$/,
@@ -36,7 +36,7 @@ async function request<T>(
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(`Orqestra API ${res.status}: ${body.slice(0, 300)}`);
+    throw new Error(`Orca API ${res.status}: ${body.slice(0, 300)}`);
   }
   return res.json() as Promise<T>;
 }

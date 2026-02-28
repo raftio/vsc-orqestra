@@ -56,7 +56,7 @@ export function createRefreshBundleCommand(
     const existing = tree.getBundle();
     if (!existing) {
       vscode.window.showWarningMessage(
-        "No bundle loaded. Use 'Orqestra: Fetch Bundle' first.",
+        "No bundle loaded. Use 'Orca: Fetch Bundle' first.",
       );
       return;
     }
