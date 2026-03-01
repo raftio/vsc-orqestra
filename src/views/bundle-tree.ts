@@ -176,8 +176,9 @@ export class BundleTreeProvider
       });
     }
 
-    const ticketLabel = context?.ticket_title ?? bundle.ticket_ref;
-    const desc = context?.ticket_title
+    const title = bundle.title || context?.ticket_title;
+    const ticketLabel = title || bundle.ticket_ref;
+    const desc = title
       ? `${bundle.ticket_ref} · v${bundle.version} · ${bundle.tasks.length} task(s)`
       : `v${bundle.version} · ${bundle.tasks.length} task(s)`;
 

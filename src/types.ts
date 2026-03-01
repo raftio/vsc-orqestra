@@ -12,6 +12,7 @@ export interface BundleDependency {
 export interface ExecutionBundle {
   id: string;
   version: number;
+  title?: string;
   spec_ref: string;
   ticket_ref: string;
   tasks: BundleTask[];
