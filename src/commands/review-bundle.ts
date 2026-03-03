@@ -40,25 +40,6 @@ async function showSearchResults(
   }
 }
 
-async function confirmInclude(
-  ticketRef: string,
-  resultCount: number,
-): Promise<boolean> {
-  const msg =
-    resultCount > 0
-      ? `Found ${resultCount} code reference(s) for "${ticketRef}". Include this bundle?`
-      : `No existing code references found for "${ticketRef}". Include this bundle?`;
-
-  const choice = await vscode.window.showInformationMessage(
-    msg,
-    { modal: true },
-    "Include",
-    "Skip",
-  );
-
-  return choice === "Include";
-}
-
 async function adjustTasks(bundle: ExecutionBundle): Promise<ExecutionBundle> {
   if (bundle.tasks.length < 2) return bundle;
 
@@ -96,11 +77,6 @@ export async function reviewNewBundle(
 
   if (results.length > 0) {
     await showSearchResults(results);
-  }
-
-  const included = await confirmInclude(bundle.ticket_ref, results.length);
-  if (!included) {
-    return { bundle, included: false };
   }
 
   const adjusted = await adjustTasks(bundle);
