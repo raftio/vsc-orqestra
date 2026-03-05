@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import { BundleTreeProvider } from "./views/bundle-tree";
 import type { WorkspaceEntry, BundleEntry } from "./views/bundle-tree";
+import { ChatViewProvider } from "./views/chat-panel";
 import * as api from "./api-client";
 import * as auth from "./auth";
 import { createFetchBundleCommand } from "./commands/pick-bundle";
@@ -76,9 +77,13 @@ export function activate(context: vscode.ExtensionContext) {
 
   const tree = new BundleTreeProvider();
   const statusBar = new StatusBarController();
+  const chatProvider = new ChatViewProvider(context.extensionUri);
 
   context.subscriptions.push(
     vscode.window.registerTreeDataProvider("or.bundleTree", tree),
+    vscode.window.registerWebviewViewProvider(ChatViewProvider.viewId, chatProvider, {
+      webviewOptions: { retainContextWhenHidden: true },
+    }),
     statusBar,
   );
 
@@ -131,6 +136,10 @@ export function activate(context: vscode.ExtensionContext) {
       statusBar.reset();
       setLoggedIn(false);
       vscode.window.showInformationMessage("OR: disconnected.");
+    }),
+
+    vscode.commands.registerCommand("or.openChat", () => {
+      vscode.commands.executeCommand("or.chatView.focus");
     }),
   );
 

@@ -88,6 +88,17 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface Conversation {
+  id: string;
+  title: string;
+  updated_at: string;
+}
+
 export interface SynthesizedContext {
   ticket_id: string;
   ticket_title: string;

@@ -12,7 +12,8 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:or.bundleTree"
+    "onView:or.bundleTree",
+    "onView:or.chatView"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -30,6 +31,11 @@
         {
           "id": "or.bundleTree",
           "name": "Execution Bundle"
+        },
+        {
+          "id": "or.chatView",
+          "name": "Chat",
+          "type": "webview"
         }
       ]
     },
@@ -57,6 +63,11 @@
       {
         "command": "or.disconnect",
         "title": "OR: Disconnect"
+      },
+      {
+        "command": "or.openChat",
+        "title": "OR: Open Chat",
+        "icon": "$(comment-discussion)"
       },
       {
         "command": "or.refreshBundle",

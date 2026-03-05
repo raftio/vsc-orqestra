@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import * as auth from "./auth";
 import type {
+  ChatMessage,
+  Conversation,
   ExecutionBundle,
   EvidencePayload,
   LoginResponse,
@@ -123,4 +125,39 @@ export async function submitEvidence(
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+// ── Chat ───────────────────────────────────────────────────────────────────
+
+export async function streamChat(
+  workspaceId: string,
+  messages: ChatMessage[],
+  conversationId?: string,
+  mode: "agent" | "ask" | "plan" = "ask",
+): Promise<Response> {
+  const apiUrl = getApiUrl();
+  const token = await auth.getToken();
+  const url = `${apiUrl}/v1/workspaces/${encodeURIComponent(workspaceId)}/chat`;
+  return fetch(url, {
+    method: "POST",
+    headers: headers(token ?? undefined),
+    body: JSON.stringify({ messages, conversationId, mode }),
+  });
+}
+
+export async function listConversations(
+  workspaceId: string,
+): Promise<{ conversations: Conversation[]; total: number }> {
+  return request(
+    `/v1/workspaces/${encodeURIComponent(workspaceId)}/chat/conversations?limit=50`,
+  );
+}
+
+export async function getConversation(
+  workspaceId: string,
+  conversationId: string,
+): Promise<{ conversation: Conversation; messages: Array<{ role: string; content: string }> }> {
+  return request(
+    `/v1/workspaces/${encodeURIComponent(workspaceId)}/chat/conversations/${encodeURIComponent(conversationId)}`,
+  );
 }
